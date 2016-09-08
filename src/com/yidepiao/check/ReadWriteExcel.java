@@ -62,6 +62,7 @@ public class ReadWriteExcel {
      * @throws Exception  
      */  
     public static void main(String[] args) throws Exception {  
+    	int k = 0;
 //    	Scanner sc = new Scanner(System.in);
 //    	System.out.println("请输入第一份excel表格文件的路径");
 //    	String file1 = sc.nextLine();
@@ -76,37 +77,87 @@ public class ReadWriteExcel {
         Map<String,String>map2 = new HashMap<String,String>();
     	startRead("C:/Users/ZZ/Desktop/易得票8月份销售明细_东莞潇湘.xls", 3,map1,map2);
     	startRead1( "C:/Users/ZZ/Desktop/潇湘国际影城（东莞店）结算表_201608.xlsx", 1, map1, map2);
-    	System.out.println(map1.size());
-    	System.out.println(map2.size());
+//    	System.out.println(map1.size());
+//    	System.out.println(map2.size());
+    	
+//    	  System.out.println("amount1:" + amount1);
+//    	  System.out.println("amount2:" + amount2);
+    	
+//    	Set<String> set = map1.keySet();
+//  //  	int i=1;
+//    	for (String key1 : set) {
+//    		 if(!key1.equals("订单号")){
+//       		  k +=	 Integer.parseInt(map1.get(key1));
+//       		}
+//    		String key2 = key1.substring(3);
+//			if(map2.containsKey(key2)){
+//				String value1 = map1.get(key1);
+//				String value2 = map2.get(key2);
+////				System.out.println(i + "-" +  key2 +"-"+ value1 + " - " + value2);
+////				i++;
+//				if(!value1.equals(value2)){
+//					System.out.println("订单号为：" + key1 + "，价格1：" + map1.get(key1) + "，价格2：" + map2.get(key2));
+//				}
+//			}else{
+//				System.out.println(key1);
+//			}
+//		}
+//    	System.out.println(k);
+//    	
     	
     	
-    	Set<String> set = map1.keySet();
-  //  	int i=1;
-    	for (String key1 : set) {
-    		String key2 = key1.substring(3);
-			if(map2.containsKey(key2)){
-				String value1 = map1.get(key1);
-				String value2 = map2.get(key2);
-//				System.out.println(i + "-" +  key2 +"-"+ value1 + " - " + value2);
-//				i++;
-				if(!value1.equals(value2)){
-					System.out.println("订单号为：" + key1 + "，价格1：" + map1.get(key1) + "，价格2：" + map2.get(key2));
-				}
+    	
+    	Set<String> set1 = map1.keySet();
+		for (String key1 : set1) {
+			String key2 = key1.substring(3);
+			if (!map2.containsKey(key2)) {
+				System.out.println(key1);
 			}
 		}
+    	
+    	
+		Set<String> set2 = map2.keySet();
+		for (String key2 : set2) {
+			String key1 = "000" + key2;
+			if (!map1.containsKey(key1)) {
+				System.out.println(key2);
+			}
+		}
+    	
+    	
+    	
+    	
+    	
+    	
+    	
+    	
+    	
   //  	sc.close();
     }
     
     
+    public static  int amount1= 0;
+    public static  int amount2= 0;
  
     public static void writeSql(String rowValue,Map map1,Map map2) throws IOException{  
     	
         String[] sqlValue = rowValue.split("#") ;
     
        	if(sqlValue.length >= 14 && !"已退".equals(sqlValue[14])) {
+       		
+       		if(!"票价".equals(sqlValue[12])){
+       			amount1 += Float.parseFloat(sqlValue[12]);
+       		}
+       		
+       		String ordernum = sqlValue[2];
+       		if(map1.containsKey(ordernum)){
+       			if(!map1.get(ordernum).equals(sqlValue[12])){
+       				System.out.println("ordernum:" + ordernum);
+       			}
+       		}
+       		
        		map1.put(sqlValue[2], sqlValue[12]);
         }
-       	
         
     //    sql="INSERT INTO table_name (列名1) VALUES("+ sqlValue[0].trim() + ");"+"\n";  
 
@@ -138,7 +189,7 @@ public class ReadWriteExcel {
    
              // 为跳过第一行目录设置count  
              int count = beginRow;  
-   
+             
              for (Row row : sheet) {  
                  // 跳过第一行的目录  
                  if(count == 0){  
@@ -150,6 +201,9 @@ public class ReadWriteExcel {
                      return ;  
                  }  
                  String rowValue = "";  
+                 
+                 int col = 0;
+                 
                  for (Cell cell : row) {  
                      if(cell.toString() == null){  
                          continue;  
@@ -186,10 +240,12 @@ public class ReadWriteExcel {
                              break;  
                          default:  
                              cellValue = "#" ;  
-                     }  
+                     }
+                     col ++;
        //              System.out.print(cellValue);  
                      rowValue += cellValue;  
                  }  
+                 
                  writeSql(rowValue,map1,map2); 
          //        writeSql1(rowValue, bw, map1, map2);
        //          System.out.println(rowValue);  
@@ -293,8 +349,22 @@ public class ReadWriteExcel {
     	    	
     	       String[] sqlValue = rowValue.split("#") ;
    
+    	       if(!"应结票款".equals(sqlValue[8])){
+          			amount2 += Integer.parseInt(sqlValue[6]) * Integer.parseInt(sqlValue[7]);
+          			
+          			 int a = Integer.parseInt(sqlValue[6]);
+                     int b = Integer.parseInt(sqlValue[7]);
+                     int c = Integer.parseInt(sqlValue[8]);
+                     
+                     if(a * b != c){
+                  	   System.out.println(rowValue);
+                     }
+                     
+          		}
+    	       
                map2.put(sqlValue[1], sqlValue[6]);
-    	             
+               
+               
     	    //    sql="INSERT INTO table_name (列名1) VALUES("+ sqlValue[0].trim() + ");"+"\n";  
 
 //    	        try {  
